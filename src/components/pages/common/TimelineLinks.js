@@ -7,6 +7,7 @@ import mql from "@microlink/mql";
 import { useEffect, useState, useContext } from "react";
 import UserContext from "../../../parts/UserContext";
 import {
+  deletShare,
   postDisLike,
   postLike,
   deleteLink,
@@ -17,7 +18,7 @@ import {
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 import CommentsBox from "./CommentsBox";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   insert_style_in_hashtags,
   getHashtags,
@@ -44,7 +45,7 @@ export default function TimelineLinks(links) {
   const text = insert_style_in_hashtags(links.links.text, hashtags);
   const [newText, setNewText] = useState(links.links.text);
 
-  const [likes, setLikes] = useState({});
+  const [likes, setLikes] = useState({cont:0});
   const [loading, setLoading] = useState(true);
   const token = JSON.parse(localStorage.getItem("linkr"));
   let name = [];
@@ -112,7 +113,7 @@ export default function TimelineLinks(links) {
       name: tippName,
       boolean: likes.list ? !likes.boolean : links.boolean,
       list: links.links.likeUser,
-      cont: likes.list ? sum : Number(links.links.likes),
+      cont: likes.list ? sum : Number(links.links.likes ? links.links.likes: 0),
     });
   }
   function like() {
@@ -122,7 +123,9 @@ export default function TimelineLinks(links) {
       },
       token.token
     ).catch((value) => console.log(value));
+    
     tippiString(likes.cont + 1);
+    links.reloading()
   }
   function dislike() {
     postDisLike(
@@ -132,6 +135,7 @@ export default function TimelineLinks(links) {
       token.token
     ).catch((value) => console.log(value));
     tippiString(likes.cont - 1);
+    links.reloading()
   }
 
   //Logica pra Deletar um Link---------------------
@@ -145,6 +149,7 @@ export default function TimelineLinks(links) {
     setLoading(false);
     const linkId = links.links.id;
     const postAuth = { headers: { Authorization: "Bearer " + token.token } };
+    
     deleteLink(linkId, postAuth)
       .then(() => {
         window.location.reload(false);
@@ -157,13 +162,13 @@ export default function TimelineLinks(links) {
   //Logica pra Editar um Link---------------------
   useEffect(() => {
     const keyDownHandler = (event) => {
-      console.log("User pressed: ", event.key);
       if (event.key === "Escape") {
         event.preventDefault();
         setNewText(links.links.text);
         setEditBoolean(true);
       }
     };
+    
     return () => {
       document.removeEventListener("keydown", keyDownHandler);
     };
@@ -205,10 +210,20 @@ export default function TimelineLinks(links) {
 
 function env(){
   setAll({...all, shares:!all.shares})
-  share()
+  share(true)
+  
 }
 
-  function share() {
+function delShare(){
+  deletShare(
+    token.token,
+    links.links.shareId
+  ).then(()=>  window.location.reload(false))
+  closeDeleteScreen();
+
+}
+
+  function share(boolean) {
 
     const link = { ...links.links }
     postShare(
@@ -217,15 +232,17 @@ function env(){
         { linkId: link.id, userId: link.userId }
 
       ).then((i) => {
-         setAll({ ...all, sharesCount: i.data.cont });
-         closeDeleteScreen();
-         links.reloading();
-       }).catch(() => {
-         closeDeleteScreen();
+        setAll({ ...all, sharesCount: i.data.cont });
+        closeDeleteScreen();
+
+
+        }).catch(() => {
+          closeDeleteScreen();
        });
        setAll({...all, shares:!all.shares})
-
+      if(boolean)window.location.reload()
   }
+
 
   return (
     <>
@@ -248,7 +265,7 @@ function env(){
                 </button>
                 <button
                   className="button blue"
-                  onClick={all.shares ? env : deleteThisLink}
+                  onClick={ links.links.origShar ? delShare : all.shares ? env : deleteThisLink}
                 >
                   {all.shares ? "yes share" : "Yes, delete it"}
                 </button>
@@ -262,13 +279,13 @@ function env(){
             src={links.links.pictureUrl}
             alt="idoso nervoso"
             className="profileIcon"
-          ></img>
-          {likes.boolean ? (
-            <h3 onClick={dislike}>
+          />
+          { likes.boolean ? (
+            <h3 onClick={links.links.origShar ?  "" : dislike}>
               <AiFillHeart className="icon" color="red" />
             </h3>
           ) : (
-            <h3 onClick={like}>
+            <h3 onClick={ links.links.origShar ?  "" : like}>
               <AiOutlineHeart className="icon" />
             </h3>
           )}
@@ -279,15 +296,16 @@ function env(){
           </Tippy>
           <SlBubbles
             className="icon"
-            onClick={() => setCommentBoolean(!commentBoolean)}
+            onClick={() => links.links.origShar ?  "" : setCommentBoolean(!commentBoolean)}
           />
           <h3 className="likes">{commentCount} comments</h3>
 
           <AiOutlineShareAlt
             className="icon"
             onClick={() => {
+              if(!links.links.origShar){  
               openDeleteScreen();
-              setAll({ ...all, shares: true });
+              setAll({ ...all, shares: true })}
             }}
           />
           <h3 className="likes">{all.sharesCount} shares</h3>
@@ -298,13 +316,13 @@ function env(){
               className="username"
               onClick={() => navigate(`/user/${links.links.userId}`)}
             >
-              {links.links.userName}
+              {links.links.origShar ?  `${links.links.userName} shared by ${links.links.origShar}  ` : links.links.userName} 
             </h2>
             {links.links.userName === user.userName ? (
               <div>
                 <BsPencilSquare
                   className="miniIcon"
-                  onClick={() => setEditBoolean(!editBoolean)}
+                  onClick={() => links.links.origShar ?  "" : setEditBoolean(!editBoolean)}
                 />
                 <BiTrash className="miniIcon" onClick={openDeleteScreen} />
               </div>

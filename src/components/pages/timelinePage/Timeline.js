@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useEffect, useState, useContext } from "react";
-import { getAllFollow, getLink } from "../../services/linkr";
+import { getAllFollow, getLink, getUserValidation } from "../../services/linkr";
 
 import LinkShare from "./LinkShare";
 import Header from "../common/Header";
@@ -9,6 +9,7 @@ import Trendings from "../common/Trendings";
 import useInterval from "use-interval";
 import { AiFillAlert } from "react-icons/ai";
 import UserContext from "../../../parts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Timeline() {
   const { user, setUser } = useContext(UserContext);
@@ -17,26 +18,31 @@ export default function Timeline() {
   const [newLinks, setNewLinks] = useState(0);
 
   const token = JSON.parse(localStorage.getItem("linkr"));
+  const navigat = useNavigate()
 
   useInterval(() => {
-    if (token) setUser({ ...user, ...token });
+    if (token){
+    getUserValidation(token.token).then((value) => {
+      setUser({ ...user, ...value.data, ...token });
+    }).catch(()=>navigat('/'))
+  }
 
     getLink(token.token)
       .then((res) => {
         if (res.data[0]) {
           if (
             Date.parse(res.data[0].createDate) > Date.parse(links[0].createDate)
-          )
+          ){
             setNewLinks(
               res.data.length > links.length
                 ? res.data.length - links.length
                 : links.length - res.data.length
-            );
+            )};
         }
       })
       .catch(() => {
         alert(
-          "An error occured while trying to fetch the posts, please refresh the page"
+          "An error occured while trying to fetch the posts, please refresh the page 1"
         );
       });
     getAllFollow(token.token, user.id)
@@ -53,17 +59,29 @@ export default function Timeline() {
       .then((res) => {
         setLoading(res.data.lenght === 0 ? true : false);
         setLinks(res.data);
+        if (res.data[0]) {
+          if (
+            Date.parse(res.data[0].createDate) > Date.parse(links[0].createDate)
+          ){
+            setNewLinks(
+              res.data.length > links.length
+                ? res.data.length - links.length
+                : links.length - res.data.length
+            )};
+        }
       })
-      .catch(() => {
-        alert(
-          "An error occured while trying to fetch the posts, please refresh the page"
-        );
-      });
+    getAllFollow(token.token, user.id)
+      .then(({ data }) => {
+        data.length > 0 || links.length > 0
+          ? setLoading(false)
+          : setLoading(true);
+      })
+      .catch((e) => console.error(e));
+
   }
   useEffect(() => {
     reloading();
   }, []);
-
   return (
     <TimelineScreen>
       <Header />

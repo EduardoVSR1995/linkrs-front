@@ -59,7 +59,7 @@ export default function Header() {
 
 
     function goToTimeline(){
-        navigat('/');
+        navigat('/timeline');
     }
     return (
         openSearchResults ? 
