@@ -45,7 +45,7 @@ export default function TimelineLinks(links) {
   const text = insert_style_in_hashtags(links.links.text, hashtags);
   const [newText, setNewText] = useState(links.links.text);
 
-  const [likes, setLikes] = useState({cont:0});
+  const [likes, setLikes] = useState({ cont: 0 });
   const [loading, setLoading] = useState(true);
   const token = JSON.parse(localStorage.getItem("linkr"));
   let name = [];
@@ -74,13 +74,13 @@ export default function TimelineLinks(links) {
   function tippiString(sum) {
     name = likes.list
       ? likes.list.filter((value) => {
-          return value !== links.links.userName;
-        })
+        return value !== links.links.userName;
+      })
       : links.links.likeUser.filter((value) => {
-          {
-            return value !== links.links.userName;
-          }
-        });
+        {
+          return value !== links.links.userName;
+        }
+      });
 
     tippName = !name[1]
       ? name[0] + " and other x peoples"
@@ -97,8 +97,8 @@ export default function TimelineLinks(links) {
           (value, i) => value !== links.links.userName && i < 2
         )
         : links.links.likeUser.filter(
-            (value, i) => value !== links.links.userName && i < 2
-          );
+          (value, i) => value !== links.links.userName && i < 2
+        );
       tippName = "You , " + name[0] + " , " + name[1] + " and other x peoples";
 
       if (name.length === 0) {
@@ -113,7 +113,7 @@ export default function TimelineLinks(links) {
       name: tippName,
       boolean: likes.list ? !likes.boolean : links.boolean,
       list: links.links.likeUser,
-      cont: likes.list ? sum : Number(links.links.likes ? links.links.likes: 0),
+      cont: likes.list ? sum : Number(links.links.likes ? links.links.likes : 0),
     });
   }
   function like() {
@@ -122,10 +122,9 @@ export default function TimelineLinks(links) {
         id: links.links.id,
       },
       token.token
-    ).catch((value) => console.log(value));
-    
+    ).catch((value) => console.log(value)).then((e) => links.reloading())
+
     tippiString(likes.cont + 1);
-    links.reloading()
   }
   function dislike() {
     postDisLike(
@@ -133,9 +132,9 @@ export default function TimelineLinks(links) {
         linkId: links.links.id,
       },
       token.token
-    ).catch((value) => console.log(value));
+    ).then((e)=>links.reloading()).catch((value) => console.log(value));
     tippiString(likes.cont - 1);
-    links.reloading()
+    
   }
 
   //Logica pra Deletar um Link---------------------
@@ -149,7 +148,7 @@ export default function TimelineLinks(links) {
     setLoading(false);
     const linkId = links.links.id;
     const postAuth = { headers: { Authorization: "Bearer " + token.token } };
-    
+
     deleteLink(linkId, postAuth)
       .then(() => {
         window.location.reload(false);
@@ -168,7 +167,7 @@ export default function TimelineLinks(links) {
         setEditBoolean(true);
       }
     };
-    
+
     return () => {
       document.removeEventListener("keydown", keyDownHandler);
     };
@@ -208,42 +207,42 @@ export default function TimelineLinks(links) {
 
   //Logica pra contar os repost -------------------------------
 
-function env(){
-  setAll({...all, shares:!all.shares})
-  share(true)
-  
-}
+  function env() {
+    setAll({ ...all, shares: !all.shares })
+    share(true)
 
-function delShare(){
-  deletShare(
-    token.token,
-    links.links.shareId
-  ).then(()=>  window.location.reload(false))
-  closeDeleteScreen();
+  }
 
-}
+  function delShare() {
+    deletShare(
+      token.token,
+      links.links.shareId
+    ).then(() => window.location.reload(false))
+    closeDeleteScreen();
+
+  }
 
   function share(boolean) {
 
     const link = { ...links.links }
     postShare(
-       token.token,
-        !all.shares ? {linkId: link.id , userId: 0 }:
+      token.token,
+      !all.shares ? { linkId: link.id, userId: 0 } :
         { linkId: link.id, userId: link.userId }
 
-      ).then((i) => {
-        setAll({ ...all, sharesCount: i.data.cont });
-        closeDeleteScreen();
+    ).then((i) => {
+      setAll({ ...all, sharesCount: i.data.cont });
+      closeDeleteScreen();
 
 
-        }).catch(() => {
-          closeDeleteScreen();
-       });
-       setAll({...all, shares:!all.shares})
-      if(boolean)window.location.reload()
+    }).catch(() => {
+      closeDeleteScreen();
+    });
+    setAll({ ...all, shares: !all.shares })
+    if (boolean) window.location.reload()
   }
 
-console.log(links.links, " 000000000000 ",user)
+  //console.log(links.links, " 000000000000 ",likes)
   return (
     <>
       <TimelineLinksStyle>
@@ -265,7 +264,7 @@ console.log(links.links, " 000000000000 ",user)
                 </button>
                 <button
                   className="button blue"
-                  onClick={ links.links.origShar ? delShare : all.shares ? env : deleteThisLink}
+                  onClick={links.links.origShar ? delShare : all.shares ? env : deleteThisLink}
                 >
                   {all.shares ? "yes share" : "Yes, delete it"}
                 </button>
@@ -280,32 +279,33 @@ console.log(links.links, " 000000000000 ",user)
             alt="idoso nervoso"
             className="profileIcon"
           />
-          { likes.boolean ? (
-            <h3 onClick={links.links.origShar ?  "" : dislike}>
+          {links.links.boolean  ? (
+            <h3 onClick={links.links.origShar ? "" : dislike}>
               <AiFillHeart className="icon" color="red" />
             </h3>
           ) : (
-            <h3 onClick={ links.links.origShar ?  "" : like}>
+            <h3 onClick={links.links.origShar ? "" : like}>
               <AiOutlineHeart className="icon" />
             </h3>
           )}
           <Tippy content={likes.name}>
             <h3 className="likes">
-              {likes.list ? likes.cont : links.links.likes} likes
+              { links.links.likes} likes
             </h3>
           </Tippy>
           <SlBubbles
             className="icon"
-            onClick={() => links.links.origShar ?  "" : setCommentBoolean(!commentBoolean)}
+            onClick={() => links.links.origShar ? "" : setCommentBoolean(!commentBoolean)}
           />
           <h3 className="likes">{commentCount} comments</h3>
 
           <AiOutlineShareAlt
             className="icon"
             onClick={() => {
-              if(!links.links.origShar){  
-              openDeleteScreen();
-              setAll({ ...all, shares: true })}
+              if (!links.links.origShar) {
+                openDeleteScreen();
+                setAll({ ...all, shares: true })
+              }
             }}
           />
           <h3 className="likes">{all.sharesCount} shares</h3>
@@ -316,15 +316,15 @@ console.log(links.links, " 000000000000 ",user)
               className="username"
               onClick={() => navigate(`/user/${links.links.userId}`)}
             >
-              {links.links.origShar ?  `${links.links.userName} shared by ${links.links.origShar}  ` : links.links.userName} 
+              {links.links.origShar ? `${links.links.userName} shared by ${links.links.origShar}  ` : links.links.userName}
             </h2>
             {links.links.userId === user.id || links.links.originId === user.id ? (
               <div>
-                {links.links.origShar ?  "" :
-                <BsPencilSquare
-                  className="miniIcon"
-                  onClick={() => setEditBoolean(!editBoolean)}
-                />}
+                {links.links.origShar ? "" :
+                  <BsPencilSquare
+                    className="miniIcon"
+                    onClick={() => setEditBoolean(!editBoolean)}
+                  />}
                 <BiTrash className="miniIcon" onClick={openDeleteScreen} />
               </div>
             ) : (

@@ -64,6 +64,7 @@ export default function Timeline() {
     getLink(token.token)
       .then((res) => {
         setLoading(res.data.length === 0 ? true : false);
+        console.log(res.data)
         setLinks(res.data);
         setNewLinks(0);
       })
