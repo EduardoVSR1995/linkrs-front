@@ -243,7 +243,7 @@ function delShare(){
       if(boolean)window.location.reload()
   }
 
-
+console.log(links.links, " 000000000000 ",user)
   return (
     <>
       <TimelineLinksStyle>
@@ -310,7 +310,7 @@ function delShare(){
           />
           <h3 className="likes">{all.sharesCount} shares</h3>
         </div>
-        <div>
+        <div className="allInforms" >
           <div className="nameNIcons">
             <h2
               className="username"
@@ -318,12 +318,13 @@ function delShare(){
             >
               {links.links.origShar ?  `${links.links.userName} shared by ${links.links.origShar}  ` : links.links.userName} 
             </h2>
-            {links.links.userName === user.userName ? (
+            {links.links.userId === user.id || links.links.originId === user.id ? (
               <div>
+                {links.links.origShar ?  "" :
                 <BsPencilSquare
                   className="miniIcon"
-                  onClick={() => links.links.origShar ?  "" : setEditBoolean(!editBoolean)}
-                />
+                  onClick={() => setEditBoolean(!editBoolean)}
+                />}
                 <BiTrash className="miniIcon" onClick={openDeleteScreen} />
               </div>
             ) : (
@@ -558,5 +559,26 @@ const TimelineLinksStyle = styled.div`
     font-weight: 400;
     font-size: 14px;
     color: #4c4c4c;
+  }
+  @media (max-width: 1000px) {
+        border-radius: 0px ;
+        width: 100% ;
+        padding:20px ;
+        .allInforms{
+          
+          width: 100%;
+        }
+        .metadataBox{
+          width: 100%;
+
+        }
+        .metadataInfo{
+          width: 80% ;
+        }
+        .textArea{
+          width: 100%
+          
+        }
+
   }
 `;
