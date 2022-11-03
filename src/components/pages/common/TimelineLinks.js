@@ -148,7 +148,6 @@ export default function TimelineLinks(links) {
     setLoading(false);
     const linkId = links.links.id;
     const postAuth = { headers: { Authorization: "Bearer " + token.token } };
-
     deleteLink(linkId, postAuth)
       .then(() => {
         window.location.reload(false);
@@ -242,7 +241,6 @@ export default function TimelineLinks(links) {
     if (boolean) window.location.reload()
   }
 
-  //console.log(links.links, " 000000000000 ",likes)
   return (
     <>
       <TimelineLinksStyle>
@@ -318,13 +316,14 @@ export default function TimelineLinks(links) {
             >
               {links.links.origShar ? `${links.links.userName} shared by ${links.links.origShar}  ` : links.links.userName}
             </h2>
-            {links.links.userId === user.id || links.links.originId === user.id ? (
+            { links.links.userName === user.userName ? (
               <div>
                 {links.links.origShar ? "" :
                   <BsPencilSquare
                     className="miniIcon"
                     onClick={() => setEditBoolean(!editBoolean)}
                   />}
+
                 <BiTrash className="miniIcon" onClick={openDeleteScreen} />
               </div>
             ) : (
