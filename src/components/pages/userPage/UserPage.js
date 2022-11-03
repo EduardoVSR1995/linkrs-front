@@ -69,7 +69,7 @@ export default function UserPage() {
       <Content>
         <Left>
           <div className="all">
-            {username.id !== id ? follow.follower ? <div className="follower" onClick={followers} >Unofollow</div> : <div className="follower" onClick={followers}>Follow</div> : ""}
+            {username.id !== id ? follow.follower ? <div className="follower" onClick={followers} >Unfollow</div> : <div className="follower" onClick={followers}>Follow</div> : ""}
           </div>
           {loading ? (
             <h3 className="noLinks">Loading...</h3>
