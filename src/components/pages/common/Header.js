@@ -203,8 +203,9 @@ const Searchbar = styled.div`
     }
 
     @media (max-width: 1000px) {
-            display: none ;
-        
+        width:50%;
+        right: 40px
+
     }
   
 
@@ -224,5 +225,8 @@ const ResultsSearchbar = styled.div`
     flex-direction: column;
     align-items: center;
     border-radius: 8px;
-    
+   @media (max-width: 1000px) {
+        width:100%;        
+    }
+     
 `

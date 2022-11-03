@@ -391,6 +391,7 @@ const TimelineLinksStyle = styled.div`
     color: rgb(255, 255, 255);
     cursor: pointer;
     text-decoration: none;
+    overflow: hidden ;
   }
   a:hover {
     color: rgb(180, 180, 180);

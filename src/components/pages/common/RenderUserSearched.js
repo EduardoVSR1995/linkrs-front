@@ -44,8 +44,8 @@ const UserListed = styled.div`
     color: #515151;
     width: 100% ;
     display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
+    align-items: flex-start;
+    justify-content: flex-end;
   
   }
 
@@ -73,7 +73,12 @@ const UserListed = styled.div`
     position: absolute;
     left: 20px;
   }
-`;
+  @media (max-width: 1000px) {
+    width: 100% ;
+    padding:0px 10px ;
+
+  }
+    `;
 
 const UserNotListed = styled.div`
   width: 530px;
